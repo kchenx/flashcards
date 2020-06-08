@@ -13,8 +13,25 @@ class App extends React.Component {
     };
   }
 
+  addCard = (card) => {
+    const cards = this.state.cards.slice().concat(card);
+    this.setState({ cards });
+  };
+
+  deleteCard = (index) => {
+    const cards = this.state.cards.slice();
+    cards.splice(index, 1);
+    this.setState({ cards });
+  };
+
   render() {
-    return <CardEditor cards={this.state.cards} />;
+    return (
+      <CardEditor
+        addCard={this.addCard}
+        cards={this.state.cards}
+        deleteCard={this.deleteCard}
+      />
+    );
   }
 }
 
