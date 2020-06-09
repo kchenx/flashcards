@@ -8,10 +8,10 @@ class App extends React.Component {
     super(props);
     this.state = {
       cards: [
-        { front: "front1", back: "back1" },
-        { front: "front2", back: "back2" },
+        { front: "hi", back: "hi2" },
+        { front: "oh", back: "yay" },
       ],
-      editor: true,
+      editor: false,
     };
   }
 
@@ -39,7 +39,9 @@ class App extends React.Component {
         />
       );
     } else {
-      return <CardViewer switchMode={this.switchMode} />;
+      return (
+        <CardViewer cards={this.state.cards} switchMode={this.switchMode} />
+      );
     }
   }
 }
