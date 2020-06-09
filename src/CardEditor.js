@@ -12,16 +12,32 @@ class CardEditor extends React.Component {
     const front = this.state.front.trim();
     const back = this.state.back.trim();
     if (front && back) {
-      this.setState({ front, back });
       this.props.addCard(this.state);
+      this.setState({ front: "", back: "" });
+    } else {
+      this.setState({ front, back });
     }
-    this.setState({ front: "", back: "" });
+    this.focus();
   };
 
   deleteCard = (index) => this.props.deleteCard(index);
 
   handleChange = (event) =>
     this.setState({ [event.target.name]: event.target.value });
+
+  handleKeyEnter = (event) => {
+    if (event.key === "Enter") {
+      this.addCard();
+    }
+  };
+
+  focus = () => {
+    this.frontInput.focus();
+  };
+
+  componentDidMount() {
+    this.focus();
+  }
 
   render() {
     const cards = this.props.cards.map((card, index) => {
@@ -57,6 +73,9 @@ class CardEditor extends React.Component {
         <InputGroup>
           <FormControl
             name="front"
+            ref={(input) => {
+              this.frontInput = input;
+            }}
             onChange={this.handleChange}
             placeholder="Front of card"
             value={this.state.front}
@@ -64,6 +83,7 @@ class CardEditor extends React.Component {
           <FormControl
             name="back"
             onChange={this.handleChange}
+            onKeyDown={this.handleKeyEnter}
             placeholder="Back of card"
             value={this.state.back}
           />

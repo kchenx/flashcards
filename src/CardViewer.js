@@ -1,13 +1,13 @@
 import React from "react";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
+import { Button, ButtonGroup } from "react-bootstrap";
 import "./CardViewer.css";
 
 class CardViewer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      index: 0,
+      randIndex: 0,
+      randIndices: [...Array(props.cards.length).keys()],
       isFront: true,
     };
   }
@@ -16,7 +16,7 @@ class CardViewer extends React.Component {
     if (!this.props.cards.length) {
       return "No cards yet — add some in the editor! 😸💩";
     }
-    const card = this.props.cards[this.state.index];
+    const card = this.props.cards[this.state.randIndices[this.state.randIndex]];
     if (this.state.isFront) {
       return card.front;
     } else {
@@ -26,22 +26,71 @@ class CardViewer extends React.Component {
 
   flipCard = () => this.setState({ isFront: !this.state.isFront });
 
-  isPrevCard = () => this.props.cards.length && this.state.index > 0;
+  isPrevCard = () => this.props.cards.length && this.state.randIndex > 0;
 
   prevCard = () => {
     if (this.isPrevCard()) {
-      this.setState({ index: this.state.index - 1, isFront: true });
+      this.setState({ randIndex: this.state.randIndex - 1, isFront: true });
     }
+    this.focus();
   };
 
   isNextCard = () =>
-    this.props.cards.length && this.state.index < this.props.cards.length - 1;
+    this.props.cards.length &&
+    this.state.randIndex < this.props.cards.length - 1;
 
   nextCard = () => {
     if (this.isNextCard()) {
-      this.setState({ index: this.state.index + 1, isFront: true });
+      this.setState({ randIndex: this.state.randIndex + 1, isFront: true });
+    }
+    this.focus();
+  };
+
+  randomize = () => {
+    this.setState({
+      randIndices: this.shuffle(this.state.randIndices),
+      randIndex: 0,
+      isFront: true,
+    });
+    this.focus();
+  };
+
+  shuffle = (oldArray) => {
+    const array = oldArray.slice();
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  };
+
+  handleKeyDown = (event) => {
+    console.log(event.key);
+    switch (event.key) {
+      case "ArrowLeft":
+        this.prevCard();
+        break;
+      case "ArrowRight":
+        this.nextCard();
+        break;
+      default:
     }
   };
+
+  focus = () => {
+    this.cardButton.focus();
+  };
+
+  componentDidMount() {
+    this.focus();
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
 
   render() {
     return (
@@ -56,7 +105,14 @@ class CardViewer extends React.Component {
           >
             &lt;
           </Button>
-          <Button className="card" variant="light" onClick={this.flipCard}>
+          <Button
+            className="card"
+            ref={(input) => {
+              this.cardButton = input;
+            }}
+            variant="light"
+            onClick={this.flipCard}
+          >
             {this.getCard()}
           </Button>
           <Button
@@ -70,10 +126,15 @@ class CardViewer extends React.Component {
         </ButtonGroup>
         <br />
         <p>
-          Card{" "}
-          {this.props.cards.length ? this.state.index + 1 : this.state.index}/
-          {this.props.cards.length}
+          (Card{" "}
+          {this.props.cards.length
+            ? this.state.randIndex + 1
+            : this.state.randIndex}
+          /{this.props.cards.length})
         </p>
+        <Button variant="light" onClick={this.randomize}>
+          Randomize
+        </Button>
         <hr />
         <Button variant="light" onClick={this.props.switchMode}>
           Go to card editor
