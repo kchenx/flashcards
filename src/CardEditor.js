@@ -56,7 +56,7 @@ class CardEditor extends React.Component {
     });
 
     return (
-      <div className="card-editor">
+      <div className="editor">
         <h2>Card Editor {"👨‍💻"}</h2>
         <Table>
           <thead>
@@ -69,7 +69,6 @@ class CardEditor extends React.Component {
           </thead>
           <tbody>{cards}</tbody>
         </Table>
-        <br />
         <InputGroup>
           <FormControl
             name="front"
@@ -93,10 +92,12 @@ class CardEditor extends React.Component {
             </Button>
           </InputGroup.Append>
         </InputGroup>
-        <hr />
-        <Button variant="light" onClick={this.props.switchMode}>
-          Go to card viewer
-        </Button>
+        <div>
+          <hr />
+          <Button variant="light" onClick={this.props.switchMode}>
+            Go to card viewer
+          </Button>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, ButtonGroup } from "react-bootstrap";
+import { Button, ButtonGroup, ProgressBar } from "react-bootstrap";
 import "./CardViewer.css";
 
 class CardViewer extends React.Component {
@@ -67,7 +67,6 @@ class CardViewer extends React.Component {
   };
 
   handleKeyDown = (event) => {
-    console.log(event.key);
     switch (event.key) {
       case "ArrowLeft":
         this.prevCard();
@@ -85,16 +84,11 @@ class CardViewer extends React.Component {
 
   componentDidMount() {
     this.focus();
-    document.addEventListener("keydown", this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeyDown);
   }
 
   render() {
     return (
-      <div className="card-viewer">
+      <div className="viewer">
         <h2>Card Viewer {"👨‍🎓📚"}</h2>
         <ButtonGroup>
           <Button
@@ -106,12 +100,17 @@ class CardViewer extends React.Component {
             &lt;
           </Button>
           <Button
-            className="card"
+            className={
+              (this.props.cards.length && this.state.isFront
+                ? "card-front"
+                : "card-back") + " card"
+            }
             ref={(input) => {
               this.cardButton = input;
             }}
             variant="light"
             onClick={this.flipCard}
+            onKeyDown={this.handleKeyDown}
           >
             {this.getCard()}
           </Button>
@@ -124,21 +123,31 @@ class CardViewer extends React.Component {
             &gt;
           </Button>
         </ButtonGroup>
-        <br />
-        <p>
-          (Card{" "}
-          {this.props.cards.length
-            ? this.state.randIndex + 1
-            : this.state.randIndex}
-          /{this.props.cards.length})
-        </p>
-        <Button variant="light" onClick={this.randomize}>
-          Randomize
-        </Button>
-        <hr />
-        <Button variant="light" onClick={this.props.switchMode}>
-          Go to card editor
-        </Button>
+        <div>
+          <br />
+          <ProgressBar
+            striped
+            variant="success"
+            now={this.props.cards.length ? this.state.randIndex + 1 : 0}
+            max={this.props.cards.length}
+          />
+          <p>
+            Card{" "}
+            {this.props.cards.length
+              ? this.state.randIndex + 1
+              : this.state.randIndex}
+            {" of " + this.props.cards.length}
+          </p>
+          <Button variant="light" onClick={this.randomize}>
+            Randomize
+          </Button>
+        </div>
+        <div>
+          <hr />
+          <Button variant="light" onClick={this.props.switchMode}>
+            Go to card editor
+          </Button>
+        </div>
       </div>
     );
   }

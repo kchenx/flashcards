@@ -3,20 +3,16 @@ button {
   justify-content: center;
 }
 
-.card-viewer {
+.viewer {
   margin: 0px 100px 100px 100px;
   text-align: center;
 }
 
 .card {
   font-size: 18pt !important;
-  font-weight: bold;
   background-color: transparent;
-  border: none;
   cursor: pointer;
   height: 300px;
-  margin: 0;
-  padding: 0;
   width: 500px;
 }
 
@@ -25,4 +21,14 @@ button {
 .card:active {
   background-color: transparent !important;
   box-shadow: none !important;
+  outline: none;
+}
+
+.card-front {
+  font-weight: bold !important;
+}
+
+.progress {
+  width: 500px !important;
+  margin: auto;
 }
