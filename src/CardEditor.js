@@ -1,4 +1,7 @@
 import React from "react";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
 import "./CardEditor.css";
 
 class CardEditor extends React.Component {
@@ -21,28 +24,32 @@ class CardEditor extends React.Component {
     const cards = this.props.cards.map((card, index) => {
       return (
         <tr key={index}>
+          <td>{index + 1}</td>
           <td>{card.front}</td>
           <td>{card.back}</td>
           <td>
-            <button onClick={() => this.deleteCard(index)}>Delete card</button>
+            <Button variant="light" onClick={() => this.deleteCard(index)}>
+              X
+            </Button>
           </td>
         </tr>
       );
     });
 
     return (
-      <div>
+      <div className="card-editor">
         <h2>Card Editor</h2>
-        <table>
+        <Table>
           <thead>
             <tr>
+              <th>Card</th>
               <th>Front</th>
               <th>Back</th>
               <th>Delete</th>
             </tr>
           </thead>
           <tbody>{cards}</tbody>
-        </table>
+        </Table>
         <br />
         <input
           name="front"
@@ -56,9 +63,13 @@ class CardEditor extends React.Component {
           placeholder="Back of card"
           value={this.state.back}
         />
-        <button onClick={this.addCard}>Add card</button>
+        <Button variant="light" onClick={this.addCard}>
+          Add card
+        </Button>
         <hr />
-        <button onClick={this.props.switchMode}>Go to card viewer</button>
+        <Button variant="light" onClick={this.props.switchMode}>
+          Go to card viewer
+        </Button>
       </div>
     );
   }

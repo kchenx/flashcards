@@ -7,10 +7,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cards: [
-        { front: "hi", back: "hi2" },
-        { front: "oh", back: "yay" },
-      ],
+      cards: [],
       editor: false,
     };
   }
