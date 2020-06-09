@@ -1,7 +1,5 @@
 import React from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Button";
-import Table from "react-bootstrap/Table";
+import { Button, FormControl, InputGroup, Table } from "react-bootstrap";
 import "./CardEditor.css";
 
 class CardEditor extends React.Component {
@@ -11,7 +9,12 @@ class CardEditor extends React.Component {
   }
 
   addCard = () => {
-    this.props.addCard(this.state);
+    const front = this.state.front.trim();
+    const back = this.state.back.trim();
+    if (front && back) {
+      this.setState({ front, back });
+      this.props.addCard(this.state);
+    }
     this.setState({ front: "", back: "" });
   };
 
@@ -38,7 +41,7 @@ class CardEditor extends React.Component {
 
     return (
       <div className="card-editor">
-        <h2>Card Editor</h2>
+        <h2>Card Editor {"👨‍💻"}</h2>
         <Table>
           <thead>
             <tr>
@@ -51,21 +54,25 @@ class CardEditor extends React.Component {
           <tbody>{cards}</tbody>
         </Table>
         <br />
-        <input
-          name="front"
-          onChange={this.handleChange}
-          placeholder="Front of card"
-          value={this.state.front}
-        />
-        <input
-          name="back"
-          onChange={this.handleChange}
-          placeholder="Back of card"
-          value={this.state.back}
-        />
-        <Button variant="light" onClick={this.addCard}>
-          Add card
-        </Button>
+        <InputGroup>
+          <FormControl
+            name="front"
+            onChange={this.handleChange}
+            placeholder="Front of card"
+            value={this.state.front}
+          />
+          <FormControl
+            name="back"
+            onChange={this.handleChange}
+            placeholder="Back of card"
+            value={this.state.back}
+          />
+          <InputGroup.Append>
+            <Button variant="light" onClick={this.addCard}>
+              Add card
+            </Button>
+          </InputGroup.Append>
+        </InputGroup>
         <hr />
         <Button variant="light" onClick={this.props.switchMode}>
           Go to card viewer

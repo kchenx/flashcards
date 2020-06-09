@@ -14,7 +14,7 @@ class CardViewer extends React.Component {
 
   getCard = () => {
     if (!this.props.cards.length) {
-      return "No cards";
+      return "No cards yet — add some in the editor! 😸💩";
     }
     const card = this.props.cards[this.state.index];
     if (this.state.isFront) {
@@ -46,9 +46,10 @@ class CardViewer extends React.Component {
   render() {
     return (
       <div className="card-viewer">
-        <h2>Card Viewer</h2>
+        <h2>Card Viewer {"👨‍🎓📚"}</h2>
         <ButtonGroup>
           <Button
+            className="buttonArrow"
             variant="light"
             onClick={this.prevCard}
             disabled={!this.isPrevCard()}
@@ -59,6 +60,7 @@ class CardViewer extends React.Component {
             {this.getCard()}
           </Button>
           <Button
+            className="buttonArrow"
             variant="light"
             onClick={this.nextCard}
             disabled={!this.isNextCard()}

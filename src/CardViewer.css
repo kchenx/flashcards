@@ -1,15 +1,28 @@
+button {
+  align-items: center;
+  justify-content: center;
+}
+
 .card-viewer {
+  margin: 0px 100px 100px 100px;
   text-align: center;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #999;
-  font-size: 24px;
+  font-size: 18pt !important;
   font-weight: bold;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
   height: 300px;
-  outline: none !important;
-  outline-offset: none !important;
-  text-align: center;
+  margin: 0;
+  padding: 0;
   width: 500px;
+}
+
+.card:hover,
+.card:focus,
+.card:active {
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
