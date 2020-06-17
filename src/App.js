@@ -36,9 +36,6 @@ class App extends React.Component {
             Flashcards
           </Navbar.Brand>
           <Nav className="mr-auto">
-            <Nav.Link as={Link} to="/">
-              Home
-            </Nav.Link>
             <Nav.Link as={Link} to="/viewer">
               Viewer
             </Nav.Link>
