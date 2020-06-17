@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, FormControl, InputGroup, Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import "./CardEditor.css";
 
 class CardEditor extends React.Component {
@@ -94,9 +95,9 @@ class CardEditor extends React.Component {
         </InputGroup>
         <div>
           <hr />
-          <Button variant="light" onClick={this.props.switchMode}>
-            Go to card viewer
-          </Button>
+          <Link to="/viewer">
+            <Button variant="light">Go to card viewer</Button>
+          </Link>
         </div>
       </div>
     );
