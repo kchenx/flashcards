@@ -93,12 +93,10 @@ class CardEditor extends React.Component {
             </Button>
           </InputGroup.Append>
         </InputGroup>
-        <div>
-          <hr />
-          <Link to="/viewer">
-            <Button variant="light">Go to card viewer</Button>
-          </Link>
-        </div>
+        <hr />
+        <Button variant="light" as={Link} to="/viewer">
+          Go to card viewer
+        </Button>
       </div>
     );
   }

@@ -1,7 +1,11 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
 import CardEditor from "./CardEditor";
 import CardViewer from "./CardViewer";
+import Homepage from "./Homepage";
+
+import { Link, Route, Switch } from "react-router-dom";
+import { Nav, Navbar } from "react-bootstrap";
+
 import "./App.css";
 
 class App extends React.Component {
@@ -25,18 +29,42 @@ class App extends React.Component {
 
   render() {
     return (
-      <Switch>
-        <Route exact path="/editor">
-          <CardEditor
-            addCard={this.addCard}
-            cards={this.state.cards}
-            deleteCard={this.deleteCard}
-          />
-        </Route>
-        <Route exact path="/viewer">
-          <CardViewer cards={this.state.cards} />
-        </Route>
-      </Switch>
+      <>
+        <Navbar bg="dark" variant="dark">
+          <Navbar.Brand as={Link} to="/">
+            {"🥇 "}
+            Flashcards
+          </Navbar.Brand>
+          <Nav className="mr-auto">
+            <Nav.Link as={Link} to="/">
+              Home
+            </Nav.Link>
+            <Nav.Link as={Link} to="/viewer">
+              Viewer
+            </Nav.Link>
+            <Nav.Link as={Link} to="/editor">
+              Editor
+            </Nav.Link>
+          </Nav>
+        </Navbar>
+        <body className="pt-4">
+          <Switch>
+            <Route exact path="/">
+              <Homepage />
+            </Route>
+            <Route exact path="/editor">
+              <CardEditor
+                addCard={this.addCard}
+                cards={this.state.cards}
+                deleteCard={this.deleteCard}
+              />
+            </Route>
+            <Route exact path="/viewer">
+              <CardViewer cards={this.state.cards} />
+            </Route>
+          </Switch>
+        </body>
+      </>
     );
   }
 }

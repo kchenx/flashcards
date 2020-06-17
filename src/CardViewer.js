@@ -1,6 +1,6 @@
 import React from "react";
-import { Button, ButtonGroup, ProgressBar } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { Button, ButtonGroup, ProgressBar } from "react-bootstrap";
 import "./CardViewer.css";
 
 class CardViewer extends React.Component {
@@ -145,9 +145,9 @@ class CardViewer extends React.Component {
         </div>
         <div>
           <hr />
-          <Link to="/editor">
-            <Button variant="light">Go to card editor</Button>
-          </Link>
+          <Button variant="light" as={Link} to="/editor">
+            Go to card editor
+          </Button>
         </div>
       </div>
     );
