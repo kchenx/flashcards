@@ -1,68 +1,66 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Button, ButtonGroup, ProgressBar } from "react-bootstrap";
 import "./CardViewer.css";
+
+import { Link, withRouter } from "react-router-dom";
+import { firebaseConnect, isLoaded, isEmpty } from "react-redux-firebase";
+import { connect } from "react-redux";
+import { compose } from "redux";
 
 class CardViewer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      randIndex: 0,
-      randIndices: [...Array(props.cards.length).keys()],
-      isFront: true,
+      cards: props.cards,
+      index: 0,
+      showFront: true,
     };
   }
 
   getCard = () => {
-    if (!this.props.cards.length) {
+    if (!this.state.cards.length) {
       return "No cards yet — add some in the editor! 😸💩";
     }
-    const card = this.props.cards[this.state.randIndices[this.state.randIndex]];
-    if (this.state.isFront) {
+    const card = this.state.cards[this.state.index];
+    if (this.state.showFront) {
       return card.front;
     } else {
       return card.back;
     }
   };
 
-  flipCard = () => this.setState({ isFront: !this.state.isFront });
+  flipCard = () => this.setState({ showFront: !this.state.showFront });
 
-  isPrevCard = () => this.props.cards.length && this.state.randIndex > 0;
+  isPrevCard = () => this.state.cards.length && this.state.index > 0;
 
   prevCard = () => {
     if (this.isPrevCard()) {
-      this.setState({ randIndex: this.state.randIndex - 1, isFront: true });
+      this.setState({ index: this.state.index - 1, showFront: true });
     }
-    this.focus();
   };
 
   isNextCard = () =>
-    this.props.cards.length &&
-    this.state.randIndex < this.props.cards.length - 1;
+    this.state.cards.length && this.state.index < this.state.cards.length - 1;
 
   nextCard = () => {
     if (this.isNextCard()) {
-      this.setState({ randIndex: this.state.randIndex + 1, isFront: true });
+      this.setState({ index: this.state.index + 1, showFront: true });
     }
-    this.focus();
   };
 
   randomize = () => {
     this.setState({
-      randIndices: this.shuffle(this.state.randIndices),
-      randIndex: 0,
-      isFront: true,
+      cards: this.shuffle(this.state.cards),
+      index: 0,
+      showFront: true,
     });
-    this.focus();
   };
 
   shuffle = (oldArray) => {
     const array = oldArray.slice();
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+      [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
   };
@@ -80,17 +78,31 @@ class CardViewer extends React.Component {
   };
 
   focus = () => {
-    this.cardButton.focus();
+    if (isLoaded(this.cardButton)) {
+      this.cardButton.focus();
+    }
   };
 
-  componentDidMount() {
+  componentDidUpdate(prevProps) {
+    if (this.props.cards !== prevProps.cards) {
+      this.setState({ cards: this.props.cards });
+    }
     this.focus();
   }
 
   render() {
+    if (!isLoaded(this.state.cards)) {
+      return <>Loading...</>;
+    }
+
+    if (isEmpty(this.props.cards)) {
+      return <>Page not found</>;
+    }
+
     return (
       <div className="viewer">
         <h2>Card Viewer {"👨‍🎓📚"}</h2>
+        <h3>{this.props.name}</h3>
         <ButtonGroup>
           <Button
             className="buttonArrow"
@@ -102,7 +114,7 @@ class CardViewer extends React.Component {
           </Button>
           <Button
             className={
-              (this.props.cards.length && this.state.isFront
+              (this.state.cards.length && this.state.showFront
                 ? "card-front"
                 : "card-back") + " card"
             }
@@ -129,15 +141,13 @@ class CardViewer extends React.Component {
           <ProgressBar
             striped
             variant="success"
-            now={this.props.cards.length ? this.state.randIndex + 1 : 0}
-            max={this.props.cards.length}
+            now={this.state.cards.length ? this.state.index + 1 : 0}
+            max={this.state.cards.length}
           />
           <p>
             Card{" "}
-            {this.props.cards.length
-              ? this.state.randIndex + 1
-              : this.state.randIndex}
-            {" of " + this.props.cards.length}
+            {this.state.cards.length ? this.state.index + 1 : this.state.index}
+            {" of " + this.state.cards.length}
           </p>
           <Button variant="light" onClick={this.randomize}>
             Randomize
@@ -145,8 +155,8 @@ class CardViewer extends React.Component {
         </div>
         <div>
           <hr />
-          <Button variant="light" as={Link} to="/editor">
-            Go to card editor
+          <Button variant="light" as={Link} to="/">
+            Home
           </Button>
         </div>
       </div>
@@ -154,4 +164,18 @@ class CardViewer extends React.Component {
   }
 }
 
-export default CardViewer;
+const mapStateToProps = (state, props) => {
+  const deck = state.firebase.data[props.match.params.deckId];
+  const name = deck && deck.name;
+  const cards = deck && deck.cards;
+  return { cards: cards, name: name };
+};
+
+export default compose(
+  withRouter,
+  firebaseConnect((props) => {
+    const deckId = props.match.params.deckId;
+    return [{ path: `/flashcards/${deckId}`, storeAs: deckId }];
+  }),
+  connect(mapStateToProps)
+)(CardViewer);
