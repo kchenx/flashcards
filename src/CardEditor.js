@@ -1,27 +1,49 @@
 import React from "react";
 import { Button, FormControl, InputGroup, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import "./CardEditor.css";
+
+import { Link, withRouter } from "react-router-dom";
+import { firebaseConnect } from "react-redux-firebase";
+import { compose } from "redux";
 
 class CardEditor extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { front: "", back: "" };
+    this.state = {
+      cards: [],
+      name: "",
+      front: "",
+      back: "",
+    };
   }
 
   addCard = () => {
     const front = this.state.front.trim();
     const back = this.state.back.trim();
     if (front && back) {
-      this.props.addCard(this.state);
-      this.setState({ front: "", back: "" });
+      const newCard = { front: this.state.front, back: this.state.back };
+      const cards = this.state.cards.slice().concat(newCard);
+      this.setState({ cards, front: "", back: "" });
     } else {
       this.setState({ front, back });
     }
     this.focus();
   };
 
-  deleteCard = (index) => this.props.deleteCard(index);
+  deleteCard = (index) => {
+    const cards = this.state.cards.slice();
+    cards.splice(index, 1);
+    this.setState({ cards });
+  };
+
+  createDeck = () => {
+    const deckId = this.props.firebase.push("/flashcards").key;
+    const newDeck = { cards: this.state.cards, name: this.state.name };
+    const onComplete = () => {
+      this.props.history.push(`/viewer/${deckId}`);
+    };
+    this.props.firebase.update(`/flashcards/${deckId}`, newDeck, onComplete);
+  };
 
   handleChange = (event) =>
     this.setState({ [event.target.name]: event.target.value });
@@ -41,7 +63,7 @@ class CardEditor extends React.Component {
   }
 
   render() {
-    const cards = this.props.cards.map((card, index) => {
+    const cards = this.state.cards.map((card, index) => {
       return (
         <tr key={index}>
           <td>{index + 1}</td>
@@ -94,12 +116,30 @@ class CardEditor extends React.Component {
           </InputGroup.Append>
         </InputGroup>
         <hr />
-        <Button variant="light" as={Link} to="/viewer">
-          Go to card viewer
+        <InputGroup>
+          <FormControl
+            name="name"
+            onChange={this.handleChange}
+            placeholder="Name of deck"
+            value={this.state.name}
+          />
+          <InputGroup.Append>
+            <Button
+              variant="light"
+              disabled={!this.state.name.trim() || !this.state.cards.length}
+              onClick={this.createDeck}
+            >
+              Create deck
+            </Button>
+          </InputGroup.Append>
+        </InputGroup>
+        <hr />
+        <Button variant="light" as={Link} to="/">
+          Home
         </Button>
       </div>
     );
   }
 }
 
-export default CardEditor;
+export default compose(firebaseConnect(), withRouter)(CardEditor);

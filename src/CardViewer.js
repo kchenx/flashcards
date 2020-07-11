@@ -168,7 +168,7 @@ const mapStateToProps = (state, props) => {
   const deck = state.firebase.data[props.match.params.deckId];
   const name = deck && deck.name;
   const cards = deck && deck.cards;
-  return { cards: cards, name: name };
+  return { cards, name };
 };
 
 export default compose(
