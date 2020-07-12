@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, ButtonGroup, ProgressBar } from "react-bootstrap";
+import { Button, ButtonGroup, ProgressBar, Spinner } from "react-bootstrap";
 import "./CardViewer.css";
 
 import { Link, withRouter } from "react-router-dom";
@@ -91,18 +91,21 @@ class CardViewer extends React.Component {
   }
 
   render() {
-    if (!isLoaded(this.state.cards)) {
-      return <>Loading...</>;
+    const { cards, index, showFront } = this.state;
+    const { name } = this.props;
+
+    if (!isLoaded(cards)) {
+      return <Spinner animation="border" />;
     }
 
-    if (isEmpty(this.props.cards)) {
+    if (isEmpty(cards)) {
       return <>Page not found</>;
     }
 
     return (
       <div className="viewer">
         <h2>Card Viewer {"👨‍🎓📚"}</h2>
-        <h3>{this.props.name}</h3>
+        <h3>{name}</h3>
         <ButtonGroup>
           <Button
             className="buttonArrow"
@@ -114,9 +117,7 @@ class CardViewer extends React.Component {
           </Button>
           <Button
             className={
-              (this.state.cards.length && this.state.showFront
-                ? "card-front"
-                : "card-back") + " card"
+              (cards.length && showFront ? "card-front" : "card-back") + " card"
             }
             ref={(input) => {
               this.cardButton = input;
@@ -141,13 +142,12 @@ class CardViewer extends React.Component {
           <ProgressBar
             striped
             variant="success"
-            now={this.state.cards.length ? this.state.index + 1 : 0}
-            max={this.state.cards.length}
+            now={cards.length ? index + 1 : 0}
+            max={cards.length}
           />
           <p>
-            Card{" "}
-            {this.state.cards.length ? this.state.index + 1 : this.state.index}
-            {" of " + this.state.cards.length}
+            Card {cards.length ? index + 1 : index}
+            {" of " + cards.length}
           </p>
           <Button variant="light" onClick={this.randomize}>
             Randomize

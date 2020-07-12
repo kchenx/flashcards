@@ -38,11 +38,14 @@ class CardEditor extends React.Component {
 
   createDeck = () => {
     const deckId = this.props.firebase.push("/flashcards").key;
-    const newDeck = { cards: this.state.cards, name: this.state.name };
-    const onComplete = () => {
-      this.props.history.push(`/viewer/${deckId}`);
+    const updates = {};
+    updates[`/flashcards/${deckId}`] = {
+      cards: this.state.cards,
+      name: this.state.name,
     };
-    this.props.firebase.update(`/flashcards/${deckId}`, newDeck, onComplete);
+    updates[`/homepage/${deckId}`] = { name: this.state.name };
+    const onComplete = () => this.props.history.push(`/viewer/${deckId}`);
+    this.props.firebase.update("/", updates, onComplete);
   };
 
   handleChange = (event) =>
@@ -63,7 +66,9 @@ class CardEditor extends React.Component {
   }
 
   render() {
-    const cards = this.state.cards.map((card, index) => {
+    const { cards, name, front, back } = this.state;
+
+    const cardRows = this.state.cards.map((card, index) => {
       return (
         <tr key={index}>
           <td>{index + 1}</td>
@@ -90,7 +95,7 @@ class CardEditor extends React.Component {
               <th>Delete</th>
             </tr>
           </thead>
-          <tbody>{cards}</tbody>
+          <tbody>{cardRows}</tbody>
         </Table>
         <InputGroup>
           <FormControl
@@ -100,14 +105,14 @@ class CardEditor extends React.Component {
             }}
             onChange={this.handleChange}
             placeholder="Front of card"
-            value={this.state.front}
+            value={front}
           />
           <FormControl
             name="back"
             onChange={this.handleChange}
             onKeyDown={this.handleKeyEnter}
             placeholder="Back of card"
-            value={this.state.back}
+            value={back}
           />
           <InputGroup.Append>
             <Button variant="light" onClick={this.addCard}>
@@ -121,12 +126,12 @@ class CardEditor extends React.Component {
             name="name"
             onChange={this.handleChange}
             placeholder="Name of deck"
-            value={this.state.name}
+            value={name}
           />
           <InputGroup.Append>
             <Button
               variant="light"
-              disabled={!this.state.name.trim() || !this.state.cards.length}
+              disabled={!name.trim() || !cards.length}
               onClick={this.createDeck}
             >
               Create deck

@@ -17,15 +17,12 @@ const App = () => {
           Flashcards
         </Navbar.Brand>
         <Nav className="mr-auto">
-          <Nav.Link as={Link} to="/viewer">
-            Viewer
-          </Nav.Link>
           <Nav.Link as={Link} to="/editor">
-            Editor
+            New Deck
           </Nav.Link>
         </Nav>
       </Navbar>
-      <body className="pt-4">
+      <div className="pt-4">
         <Switch>
           <Route exact path="/">
             <Homepage />
@@ -37,10 +34,10 @@ const App = () => {
             <CardViewer />
           </Route>
           <Route>
-            <div>Page not found</div>
+            <>Page not found</>
           </Route>
         </Switch>
-      </body>
+      </div>
     </>
   );
 };
