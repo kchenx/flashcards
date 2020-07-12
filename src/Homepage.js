@@ -33,7 +33,7 @@ class Homepage extends React.Component {
   render() {
     return (
       <>
-        <Jumbotron>
+        <Jumbotron className="mt-4">
           <h1>Welcome to the new you.</h1>
           <p>
             Congratulations on embarking on your new learning journey with the
@@ -45,7 +45,7 @@ class Homepage extends React.Component {
             </Button>
           </p>
         </Jumbotron>
-        <div className="homepage">
+        <div className="decks">
           <h2>Available Decks</h2>
           {this.renderDecks()}
         </div>
@@ -55,8 +55,9 @@ class Homepage extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const decks = state.firebase.data.decks;
-  return { decks };
+  return {
+    decks: state.firebase.data.decks,
+  };
 };
 
 export default compose(

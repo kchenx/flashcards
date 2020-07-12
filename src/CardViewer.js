@@ -17,9 +17,17 @@ class CardViewer extends React.Component {
     };
   }
 
+  cardsExist = () =>
+    isLoaded(this.state.cards) &&
+    !isEmpty(this.state.cards) &&
+    this.state.cards.length;
+
   getCard = () => {
-    if (!this.state.cards.length) {
-      return "No cards yet — add some in the editor! 😸💩";
+    if (!isLoaded(this.state.cards)) {
+      return <Spinner animation="border" />;
+    }
+    if (isEmpty(this.state.cards)) {
+      return "This deck doesn't exist 😸💩";
     }
     const card = this.state.cards[this.state.index];
     if (this.state.showFront) {
@@ -31,7 +39,7 @@ class CardViewer extends React.Component {
 
   flipCard = () => this.setState({ showFront: !this.state.showFront });
 
-  isPrevCard = () => this.state.cards.length && this.state.index > 0;
+  isPrevCard = () => this.cardsExist() && this.state.index > 0;
 
   prevCard = () => {
     if (this.isPrevCard()) {
@@ -40,7 +48,7 @@ class CardViewer extends React.Component {
   };
 
   isNextCard = () =>
-    this.state.cards.length && this.state.index < this.state.cards.length - 1;
+    this.cardsExist() && this.state.index < this.state.cards.length - 1;
 
   nextCard = () => {
     if (this.isNextCard()) {
@@ -94,16 +102,8 @@ class CardViewer extends React.Component {
     const { cards, index, showFront } = this.state;
     const { name } = this.props;
 
-    if (!isLoaded(cards)) {
-      return <Spinner animation="border" />;
-    }
-
-    if (isEmpty(cards)) {
-      return <>Page not found</>;
-    }
-
     return (
-      <div className="viewer">
+      <div className="viewer mt-4">
         <h2>Card Viewer {"👨‍🎓📚"}</h2>
         <h3>{name}</h3>
         <ButtonGroup>
@@ -117,7 +117,9 @@ class CardViewer extends React.Component {
           </Button>
           <Button
             className={
-              (cards.length && showFront ? "card-front" : "card-back") + " card"
+              (this.cardsExist() && cards.length && showFront
+                ? "card-front"
+                : "card-back") + " card"
             }
             ref={(input) => {
               this.cardButton = input;
@@ -142,12 +144,12 @@ class CardViewer extends React.Component {
           <ProgressBar
             striped
             variant="success"
-            now={cards.length ? index + 1 : 0}
-            max={cards.length}
+            now={this.cardsExist() ? index + 1 : 0}
+            max={this.cardsExist() ? cards.length : 0}
           />
           <p>
-            Card {cards.length ? index + 1 : index}
-            {" of " + cards.length}
+            Card {this.cardsExist() ? index + 1 : 0}
+            {" of " + (this.cardsExist() ? cards.length : 0)}
           </p>
           <Button variant="light" onClick={this.randomize}>
             Randomize

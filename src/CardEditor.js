@@ -2,8 +2,9 @@ import React from "react";
 import { Button, FormControl, InputGroup, Table } from "react-bootstrap";
 import "./CardEditor.css";
 
-import { Link, withRouter } from "react-router-dom";
+import { Link, withRouter, Redirect } from "react-router-dom";
 import { firebaseConnect } from "react-redux-firebase";
+import { connect } from "react-redux";
 import { compose } from "redux";
 
 class CardEditor extends React.Component {
@@ -51,9 +52,15 @@ class CardEditor extends React.Component {
   handleChange = (event) =>
     this.setState({ [event.target.name]: event.target.value });
 
-  handleKeyEnter = (event) => {
+  handleCardEnter = (event) => {
     if (event.key === "Enter") {
       this.addCard();
+    }
+  };
+
+  handleDeckEnter = (event) => {
+    if (event.key === "Enter") {
+      this.createDeck();
     }
   };
 
@@ -61,11 +68,11 @@ class CardEditor extends React.Component {
     this.frontInput.focus();
   };
 
-  componentDidMount() {
-    this.focus();
-  }
-
   render() {
+    if (!this.props.isLoggedIn) {
+      return <Redirect to="/login" />;
+    }
+
     const { cards, name, front, back } = this.state;
 
     const cardRows = this.state.cards.map((card, index) => {
@@ -104,13 +111,15 @@ class CardEditor extends React.Component {
               this.frontInput = input;
             }}
             onChange={this.handleChange}
+            onKeyDown={this.handleCardEnter}
             placeholder="Front of card"
             value={front}
+            autoFocus
           />
           <FormControl
             name="back"
             onChange={this.handleChange}
-            onKeyDown={this.handleKeyEnter}
+            onKeyDown={this.handleCardEnter}
             placeholder="Back of card"
             value={back}
           />
@@ -120,11 +129,11 @@ class CardEditor extends React.Component {
             </Button>
           </InputGroup.Append>
         </InputGroup>
-        <hr />
-        <InputGroup>
+        <InputGroup className="mt-4">
           <FormControl
             name="name"
             onChange={this.handleChange}
+            onKeyDown={this.handleDeckEnter}
             placeholder="Name of deck"
             value={name}
           />
@@ -147,4 +156,12 @@ class CardEditor extends React.Component {
   }
 }
 
-export default compose(firebaseConnect(), withRouter)(CardEditor);
+const mapStateToProps = (state) => {
+  return { isLoggedIn: state.firebase.auth.uid };
+};
+
+export default compose(
+  firebaseConnect(),
+  connect(mapStateToProps),
+  withRouter
+)(CardEditor);
