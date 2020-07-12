@@ -4,7 +4,7 @@ import CardViewer from "./CardViewer";
 import Homepage from "./Homepage";
 import PageRegister from "./PageRegister";
 import PageLogin from "./PageLogin";
-import { Button, Nav, Navbar, Spinner } from "react-bootstrap";
+import { Button, Nav, Navbar } from "react-bootstrap";
 import "./App.css";
 
 import { Link, Route, Switch } from "react-router-dom";
@@ -13,11 +13,32 @@ import { firebaseConnect, isLoaded } from "react-redux-firebase";
 import { compose } from "redux";
 
 const App = (props) => {
-  const { auth, profile, email, isLoggedIn, firebase } = props;
+  const { auth, profile, username, isLoggedIn, firebase } = props;
 
-  if (!isLoaded(auth, profile)) {
-    return <Spinner animation="border" />;
-  }
+  const rightNavContent = isLoggedIn ? (
+    <>
+      <Navbar.Text className="mr-3">{username}</Navbar.Text>
+      <Button
+        variant="outline-info"
+        onClick={() => firebase.logout()}
+        as={Link}
+        to="/"
+      >
+        Logout
+      </Button>
+    </>
+  ) : (
+    <>
+      <Nav.Link as={Link} to="/register">
+        Register
+      </Nav.Link>
+      <Nav.Link variant="light" as={Link} to="/login">
+        Login
+      </Nav.Link>
+    </>
+  );
+
+  const rightNav = isLoaded(auth, profile) ? rightNavContent : <></>;
 
   return (
     <>
@@ -27,31 +48,11 @@ const App = (props) => {
           Flashcards
         </Navbar.Brand>
         <Nav className="mr-auto">
-          {isLoggedIn && (
-            <Nav.Link as={Link} to="/editor">
-              New Deck
-            </Nav.Link>
-          )}
+          <Nav.Link as={Link} to="/editor">
+            New Deck
+          </Nav.Link>
         </Nav>
-        <Nav>
-          {isLoggedIn ? (
-            <>
-              <Navbar.Text className="mr-3">{email}</Navbar.Text>
-              <Button variant="outline-info" onClick={() => firebase.logout()}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Nav.Link as={Link} to="/register">
-                Register
-              </Nav.Link>
-              <Nav.Link variant="light" as={Link} to="/login">
-                Login
-              </Nav.Link>
-            </>
-          )}
-        </Nav>
+        <Nav>{rightNav}</Nav>
       </Navbar>
       <Switch>
         <Route exact path="/">
@@ -70,20 +71,18 @@ const App = (props) => {
           <PageLogin />
         </Route>
         <Route>
-          <>Page not found</>
+          <div className="m-4">Page not found</div>
         </Route>
       </Switch>
     </>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    auth: state.firebase.auth,
-    profile: state.firebase.profile,
-    email: state.firebase.auth.email,
-    isLoggedIn: state.firebase.auth.uid,
-  };
-};
+const mapStateToProps = ({ firebase }) => ({
+  auth: firebase.auth,
+  profile: firebase.profile,
+  username: firebase.profile.username,
+  isLoggedIn: firebase.auth.uid,
+});
 
 export default compose(firebaseConnect(), connect(mapStateToProps))(App);

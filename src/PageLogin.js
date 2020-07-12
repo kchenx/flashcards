@@ -48,7 +48,7 @@ class PageLogin extends React.Component {
       <div className="m-4">
         <h2>Login</h2>
         <h3>{error}</h3>
-        <Form>
+        <Form type="">
           <Form.Group controlId="formEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
@@ -80,8 +80,8 @@ class PageLogin extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { isLoggedIn: state.firebase.auth.uid };
-};
+const mapStateToProps = ({ firebase }) => ({
+  isLoggedIn: firebase.auth.uid,
+});
 
 export default compose(firebaseConnect(), connect(mapStateToProps))(PageLogin);

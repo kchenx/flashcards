@@ -3,7 +3,12 @@ import { Button, ButtonGroup, ProgressBar, Spinner } from "react-bootstrap";
 import "./CardViewer.css";
 
 import { Link, withRouter } from "react-router-dom";
-import { firebaseConnect, isLoaded, isEmpty } from "react-redux-firebase";
+import {
+  firebaseConnect,
+  isLoaded,
+  isEmpty,
+  populate,
+} from "react-redux-firebase";
 import { connect } from "react-redux";
 import { compose } from "redux";
 
@@ -11,7 +16,7 @@ class CardViewer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cards: props.cards,
+      cards: props.deck && props.deck.cards,
       index: 0,
       showFront: true,
     };
@@ -23,18 +28,8 @@ class CardViewer extends React.Component {
     this.state.cards.length;
 
   getCard = () => {
-    if (!isLoaded(this.state.cards)) {
-      return <Spinner animation="border" />;
-    }
-    if (isEmpty(this.state.cards)) {
-      return "This deck doesn't exist 😸💩";
-    }
     const card = this.state.cards[this.state.index];
-    if (this.state.showFront) {
-      return card.front;
-    } else {
-      return card.back;
-    }
+    return this.state.showFront ? card.front : card.back;
   };
 
   flipCard = () => this.setState({ showFront: !this.state.showFront });
@@ -45,6 +40,7 @@ class CardViewer extends React.Component {
     if (this.isPrevCard()) {
       this.setState({ index: this.state.index - 1, showFront: true });
     }
+    this.focus();
   };
 
   isNextCard = () =>
@@ -54,6 +50,7 @@ class CardViewer extends React.Component {
     if (this.isNextCard()) {
       this.setState({ index: this.state.index + 1, showFront: true });
     }
+    this.focus();
   };
 
   randomize = () => {
@@ -62,6 +59,7 @@ class CardViewer extends React.Component {
       index: 0,
       showFront: true,
     });
+    this.focus();
   };
 
   shuffle = (oldArray) => {
@@ -86,26 +84,39 @@ class CardViewer extends React.Component {
   };
 
   focus = () => {
-    if (isLoaded(this.cardButton)) {
-      this.cardButton.focus();
-    }
+    this.cardButton.focus();
   };
 
   componentDidUpdate(prevProps) {
-    if (this.props.cards !== prevProps.cards) {
-      this.setState({ cards: this.props.cards });
+    if (
+      this.props.deck &&
+      this.props.deck.cards &&
+      (!prevProps.deck || this.props.deck !== prevProps.deck)
+    ) {
+      this.setState({ cards: this.props.deck && this.props.deck.cards });
     }
-    this.focus();
   }
 
   render() {
     const { cards, index, showFront } = this.state;
-    const { name } = this.props;
+    const { deck, uid } = this.props;
+
+    if (!isLoaded(deck, this.state.cards)) {
+      return <Spinner animation="border" />;
+    }
+
+    const { name, owner, ownerName, isPublic } = deck;
+
+    if (isEmpty(this.state.cards)) {
+      return <div className="m-4">{"This deck doesn't exist 😸💩"}</div>;
+    } else if (!isPublic && owner !== uid) {
+      return <div className="m-4">You do not have access to this deck.</div>;
+    }
 
     return (
       <div className="viewer mt-4">
-        <h2>Card Viewer {"👨‍🎓📚"}</h2>
-        <h3>{name}</h3>
+        <h2>{name}</h2>
+        <h5>Made by: {ownerName}</h5>
         <ButtonGroup>
           <Button
             className="buttonArrow"
@@ -127,6 +138,7 @@ class CardViewer extends React.Component {
             variant="light"
             onClick={this.flipCard}
             onKeyDown={this.handleKeyDown}
+            autoFocus
           >
             {this.getCard()}
           </Button>
@@ -166,18 +178,32 @@ class CardViewer extends React.Component {
   }
 }
 
-const mapStateToProps = (state, props) => {
-  const deck = state.firebase.data[props.match.params.deckId];
-  const name = deck && deck.name;
-  const cards = deck && deck.cards;
-  return { cards, name };
-};
+const populates = [
+  {
+    child: "owner",
+    root: "users",
+    childParam: "username",
+    childAlias: "ownerName",
+  },
+];
+
+const mapStateToProps = ({ firebase }, props) => ({
+  uid: firebase.auth.uid,
+  deck: populate(
+    firebase,
+    `/flashcards/${props.match.params.deckId}`,
+    populates
+  ),
+});
 
 export default compose(
   withRouter,
   firebaseConnect((props) => {
     const deckId = props.match.params.deckId;
-    return [{ path: `/flashcards/${deckId}`, storeAs: deckId }];
+    return [
+      { path: `/flashcards/${deckId}`, storeAs: deckId },
+      { path: `/flashcards/${deckId}`, populates },
+    ];
   }),
   connect(mapStateToProps)
 )(CardViewer);

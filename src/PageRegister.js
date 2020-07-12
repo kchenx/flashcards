@@ -12,7 +12,7 @@ class PageRegister extends React.Component {
     this.state = {
       email: "",
       password: "",
-      name: "",
+      username: "",
     };
   }
 
@@ -26,7 +26,7 @@ class PageRegister extends React.Component {
   };
 
   register = async () => {
-    this.setState({ name: this.state.name.trim() });
+    this.setState({ username: this.state.username.trim() });
 
     const credentials = {
       email: this.state.email,
@@ -35,7 +35,7 @@ class PageRegister extends React.Component {
 
     const profile = {
       email: this.state.email,
-      name: this.state.name,
+      username: this.state.username,
     };
 
     try {
@@ -50,7 +50,7 @@ class PageRegister extends React.Component {
       return <Redirect to="/" />;
     }
 
-    const { email, password, name, error } = this.state;
+    const { email, password, username, error } = this.state;
 
     return (
       <div className="m-4">
@@ -60,12 +60,12 @@ class PageRegister extends React.Component {
           <Form.Group controlId="formName">
             <Form.Label>Name</Form.Label>
             <Form.Control
-              name="name"
+              name="username"
               onChange={this.handleChange}
               onKeyDown={this.handleKeyEnter}
               placeholder="Name"
               type="email"
-              value={name}
+              value={username}
             />
             <Form.Text className="text-muted">
               This is how others will see you on the site.
@@ -99,7 +99,7 @@ class PageRegister extends React.Component {
           <Button
             variant="light"
             onClick={this.register}
-            disabled={!name.trim()}
+            disabled={!username.trim()}
           >
             Register
           </Button>
@@ -109,9 +109,9 @@ class PageRegister extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { isLoggedIn: state.firebase.auth.uid };
-};
+const mapStateToProps = ({ firebase }) => ({
+  isLoggedIn: firebase.auth.uid,
+});
 
 export default compose(
   firebaseConnect(),

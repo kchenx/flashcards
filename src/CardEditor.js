@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, FormControl, InputGroup, Table } from "react-bootstrap";
+import { Button, Form, InputGroup, Table } from "react-bootstrap";
 import "./CardEditor.css";
 
 import { Link, withRouter, Redirect } from "react-router-dom";
@@ -15,6 +15,7 @@ class CardEditor extends React.Component {
       name: "",
       front: "",
       back: "",
+      isPublic: false,
     };
   }
 
@@ -38,19 +39,21 @@ class CardEditor extends React.Component {
   };
 
   createDeck = () => {
-    const deckId = this.props.firebase.push("/flashcards").key;
+    const { cards, name, isPublic } = this.state;
+    const { uid, firebase, history } = this.props;
+    const deckId = firebase.push("/flashcards").key;
     const updates = {};
-    updates[`/flashcards/${deckId}`] = {
-      cards: this.state.cards,
-      name: this.state.name,
-    };
-    updates[`/homepage/${deckId}`] = { name: this.state.name };
-    const onComplete = () => this.props.history.push(`/viewer/${deckId}`);
-    this.props.firebase.update("/", updates, onComplete);
+    updates[`/flashcards/${deckId}`] = { cards, name, isPublic, owner: uid };
+    updates[`/homepage/${deckId}`] = { name, isPublic, owner: uid };
+    const onComplete = () => history.push(`/viewer/${deckId}`);
+    firebase.update("/", updates, onComplete);
   };
 
   handleChange = (event) =>
     this.setState({ [event.target.name]: event.target.value });
+
+  handleCheckboxChange = (event) =>
+    this.setState({ isPublic: event.target.checked });
 
   handleCardEnter = (event) => {
     if (event.key === "Enter") {
@@ -69,26 +72,24 @@ class CardEditor extends React.Component {
   };
 
   render() {
-    if (!this.props.isLoggedIn) {
+    if (!this.props.uid) {
       return <Redirect to="/login" />;
     }
 
     const { cards, name, front, back } = this.state;
 
-    const cardRows = this.state.cards.map((card, index) => {
-      return (
-        <tr key={index}>
-          <td>{index + 1}</td>
-          <td>{card.front}</td>
-          <td>{card.back}</td>
-          <td>
-            <Button variant="light" onClick={() => this.deleteCard(index)}>
-              X
-            </Button>
-          </td>
-        </tr>
-      );
-    });
+    const cardRows = this.state.cards.map((card, index) => (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>{card.front}</td>
+        <td>{card.back}</td>
+        <td>
+          <Button variant="light" onClick={() => this.deleteCard(index)}>
+            X
+          </Button>
+        </td>
+      </tr>
+    ));
 
     return (
       <div className="editor">
@@ -104,40 +105,45 @@ class CardEditor extends React.Component {
           </thead>
           <tbody>{cardRows}</tbody>
         </Table>
-        <InputGroup>
-          <FormControl
-            name="front"
-            ref={(input) => {
-              this.frontInput = input;
-            }}
-            onChange={this.handleChange}
-            onKeyDown={this.handleCardEnter}
-            placeholder="Front of card"
-            value={front}
-            autoFocus
-          />
-          <FormControl
-            name="back"
-            onChange={this.handleChange}
-            onKeyDown={this.handleCardEnter}
-            placeholder="Back of card"
-            value={back}
-          />
-          <InputGroup.Append>
-            <Button variant="light" onClick={this.addCard}>
-              Add card
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
-        <InputGroup className="mt-4">
-          <FormControl
-            name="name"
-            onChange={this.handleChange}
-            onKeyDown={this.handleDeckEnter}
-            placeholder="Name of deck"
-            value={name}
-          />
-          <InputGroup.Append>
+        <Form>
+          <InputGroup>
+            <Form.Control
+              name="front"
+              ref={(input) => {
+                this.frontInput = input;
+              }}
+              onChange={this.handleChange}
+              onKeyDown={this.handleCardEnter}
+              placeholder="Front of card"
+              value={front}
+              autoFocus
+            />
+            <Form.Control
+              name="back"
+              onChange={this.handleChange}
+              onKeyDown={this.handleCardEnter}
+              placeholder="Back of card"
+              value={back}
+            />
+            <InputGroup.Append>
+              <Button variant="light" onClick={this.addCard}>
+                Add card
+              </Button>
+            </InputGroup.Append>
+          </InputGroup>
+          <Form.Group className="mt-4">
+            <Form.Control
+              name="name"
+              onChange={this.handleChange}
+              onKeyDown={this.handleDeckEnter}
+              placeholder="Name of deck"
+              value={name}
+            />
+            <Form.Check
+              type="checkbox"
+              label="Make deck public"
+              onChange={this.handleCheckboxChange}
+            />
             <Button
               variant="light"
               disabled={!name.trim() || !cards.length}
@@ -145,8 +151,8 @@ class CardEditor extends React.Component {
             >
               Create deck
             </Button>
-          </InputGroup.Append>
-        </InputGroup>
+          </Form.Group>
+        </Form>
         <hr />
         <Button variant="light" as={Link} to="/">
           Home
@@ -156,9 +162,9 @@ class CardEditor extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { isLoggedIn: state.firebase.auth.uid };
-};
+const mapStateToProps = ({ firebase }) => ({
+  uid: firebase.auth.uid,
+});
 
 export default compose(
   firebaseConnect(),
