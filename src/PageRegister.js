@@ -4,7 +4,7 @@ import { Button, Form } from "react-bootstrap";
 import { firebaseConnect } from "react-redux-firebase";
 import { connect } from "react-redux";
 import { compose } from "redux";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 class PageRegister extends React.Component {
   constructor(props) {
@@ -54,56 +54,65 @@ class PageRegister extends React.Component {
 
     return (
       <div className="m-4">
-        <h2>Register</h2>
-        <h3>{error}</h3>
-        <Form>
-          <Form.Group controlId="formName">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              name="username"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyEnter}
-              placeholder="Name"
-              type="email"
-              value={username}
-            />
-            <Form.Text className="text-muted">
-              This is how others will see you on the site.
-            </Form.Text>
-          </Form.Group>
-          <Form.Group controlId="formEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              name="email"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyEnter}
-              placeholder="Email"
-              type="email"
-              value={email}
-            />
-            <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
-            </Form.Text>
-          </Form.Group>
-          <Form.Group controlId="formPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              name="password"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyEnter}
-              placeholder="Password"
-              type="password"
-              value={password}
-            />
-          </Form.Group>
-          <Button
-            variant="light"
-            onClick={this.register}
-            disabled={!username.trim()}
-          >
-            Register
+        <div className="m-4">
+          <h2>Register</h2>
+          <h3>{error}</h3>
+          <Form>
+            <Form.Group controlId="formName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                name="username"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyEnter}
+                placeholder="Name"
+                type="email"
+                value={username}
+              />
+              <Form.Text className="text-muted">
+                This is how others will see you on the site.
+              </Form.Text>
+            </Form.Group>
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                name="email"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyEnter}
+                placeholder="Email"
+                type="email"
+                value={email}
+              />
+              <Form.Text className="text-muted">
+                We'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+            <Form.Group controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                name="password"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyEnter}
+                placeholder="Password"
+                type="password"
+                value={password}
+              />
+            </Form.Group>
+            <Button
+              variant="light"
+              onClick={this.register}
+              disabled={!username.trim()}
+            >
+              Register
+            </Button>
+          </Form>
+        </div>
+        <hr />
+        <div className="m-4" style={{ textAlign: "center" }}>
+          <p>Already have an account?</p>
+          <Button variant="light" as={Link} to="/login">
+            Login
           </Button>
-        </Form>
+        </div>
       </div>
     );
   }

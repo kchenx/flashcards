@@ -4,7 +4,7 @@ import { Button, Form } from "react-bootstrap";
 import { firebaseConnect } from "react-redux-firebase";
 import { connect } from "react-redux";
 import { compose } from "redux";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 class PageLogin extends React.Component {
   constructor(props) {
@@ -46,35 +46,44 @@ class PageLogin extends React.Component {
 
     return (
       <div className="m-4">
-        <h2>Login</h2>
-        <h3>{error}</h3>
-        <Form type="">
-          <Form.Group controlId="formEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              name="email"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyEnter}
-              placeholder="Email"
-              type="email"
-              value={email}
-            />
-          </Form.Group>
-          <Form.Group controlId="formPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              name="password"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyEnter}
-              placeholder="Password"
-              type="password"
-              value={password}
-            />
-          </Form.Group>
-          <Button variant="light" onClick={this.login}>
-            Login
+        <div className="m-4">
+          <h2>Login</h2>
+          <h3>{error}</h3>
+          <Form type="">
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                name="email"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyEnter}
+                placeholder="Email"
+                type="email"
+                value={email}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                name="password"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyEnter}
+                placeholder="Password"
+                type="password"
+                value={password}
+              />
+            </Form.Group>
+            <Button variant="light" onClick={this.login}>
+              Login
+            </Button>
+          </Form>
+        </div>
+        <hr />
+        <div className="m-4" style={{ textAlign: "center" }}>
+          <p>Need an account?</p>
+          <Button variant="light" as={Link} to="/register">
+            Register
           </Button>
-        </Form>
+        </div>
       </div>
     );
   }

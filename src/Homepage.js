@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, ListGroup, Jumbotron, Spinner } from "react-bootstrap";
+import { Button, ListGroup, Jumbotron } from "react-bootstrap";
 import "./Homepage.css";
 
 import { Link } from "react-router-dom";
@@ -8,8 +8,22 @@ import { connect } from "react-redux";
 import { compose } from "redux";
 
 class Homepage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  async componentDidMount() {
+    const getHomepage = this.props.firebase
+      .functions()
+      .httpsCallable("getHomepage");
+    const homepage = await getHomepage();
+    this.setState({ decks: homepage.data });
+  }
+
   renderDecks = () => {
-    const { decks, uid } = this.props;
+    const { uid } = this.props;
+    const { decks } = this.state;
 
     if (!isLoaded(decks) || isEmpty(decks)) {
       return <></>;
@@ -31,7 +45,6 @@ class Homepage extends React.Component {
         ));
 
     const userDecks = getDecks((key) => decks[key].owner === uid);
-
     const publicDecks = getDecks(
       (key) => decks[key].isPublic && decks[key].owner !== uid
     );
@@ -55,34 +68,24 @@ class Homepage extends React.Component {
   };
 
   render() {
-    const { decks, username } = this.props;
-
-    if (!isLoaded(decks)) {
-      return <Spinner animation="border" />;
-    }
+    const { uid } = this.props;
 
     return (
       <>
         <Jumbotron className="mt-4">
-          <h1>Welcome to the new you{username && ", " + username}.</h1>
+          <h1>Welcome to the new you.</h1>
           <p>
             Congratulations on embarking on your new learning journey with the
             Flashcards app! Infinite possibilities await. Discover your zen now.
           </p>
-          {username ? (
-            <Button variant="dark" as={Link} to="/editor">
-              Create a new deck
-            </Button>
-          ) : (
-            <>
-              <Button className="mr-2" variant="dark" as={Link} to="/register">
-                Register
-              </Button>
-              <Button className="mr-2" variant="dark" as={Link} to="/login">
-                Login
-              </Button>
-            </>
-          )}
+          <Button
+            className="mr-2"
+            variant="dark"
+            as={Link}
+            to={uid ? "/editor" : "/login"}
+          >
+            Get Started
+          </Button>
         </Jumbotron>
         <div className="decks">{this.renderDecks()}</div>
       </>
@@ -91,12 +94,8 @@ class Homepage extends React.Component {
 }
 
 const mapStateToProps = ({ firebase }) => ({
-  decks: firebase.data.decks,
   username: firebase.profile.username,
   uid: firebase.auth.uid,
 });
 
-export default compose(
-  firebaseConnect([{ path: `/homepage`, storeAs: "decks" }]),
-  connect(mapStateToProps)
-)(Homepage);
+export default compose(firebaseConnect(), connect(mapStateToProps))(Homepage);

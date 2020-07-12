@@ -101,13 +101,13 @@ class CardViewer extends React.Component {
     const { cards, index, showFront } = this.state;
     const { deck, uid } = this.props;
 
-    if (!isLoaded(deck, this.state.cards)) {
+    if (!isLoaded(deck, cards)) {
       return <Spinner animation="border" />;
     }
 
     const { name, owner, ownerName, isPublic } = deck;
 
-    if (isEmpty(this.state.cards)) {
+    if (isEmpty(cards)) {
       return <div className="m-4">{"This deck doesn't exist 😸💩"}</div>;
     } else if (!isPublic && owner !== uid) {
       return <div className="m-4">You do not have access to this deck.</div>;
@@ -189,21 +189,14 @@ const populates = [
 
 const mapStateToProps = ({ firebase }, props) => ({
   uid: firebase.auth.uid,
-  deck: populate(
-    firebase,
-    `/flashcards/${props.match.params.deckId}`,
-    populates
-  ),
+  deck: populate(firebase, props.match.params.deckId.toString(), populates),
 });
 
 export default compose(
   withRouter,
   firebaseConnect((props) => {
     const deckId = props.match.params.deckId;
-    return [
-      { path: `/flashcards/${deckId}`, storeAs: deckId },
-      { path: `/flashcards/${deckId}`, populates },
-    ];
+    return [{ path: `/flashcards/${deckId}`, storeAs: deckId, populates }];
   }),
   connect(mapStateToProps)
 )(CardViewer);

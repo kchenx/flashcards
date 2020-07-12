@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import firebase from "firebase/app";
 import "firebase/database";
 import "firebase/auth";
+import "firebase/functions";
 import { createStore, combineReducers } from "redux";
 import {
   ReactReduxFirebaseProvider,
@@ -38,6 +39,7 @@ const rrfConfig = {
 
 // Initialize firebase instance
 firebase.initializeApp(firebaseConfig);
+// firebase.functions().useFunctionsEmulator("http://localhost:5001");
 
 // Add firebase to reducers
 const rootReducer = combineReducers({
